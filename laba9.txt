@@ -1,0 +1,14 @@
+file = open('text_laba_9.txt', 'r')
+f = []
+for i in file.readlines():
+    f = list(map(int, i.split()))
+file.close()
+count = 0
+for i in f:
+    if i != max(f):
+        count += i
+    else:
+        break
+file = open('res.txt', 'w+')
+file.write(f'{count}')
+file.close()

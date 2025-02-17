@@ -1,0 +1,35 @@
+import random
+random.seed(123)
+print(random.randint(1,15))
+
+def letter_frequency(text):
+    text = text.lower()
+    counts = {}
+    total = 0
+
+    for char in text:
+        if 'а' <= char <= 'я':
+            total += 1
+            counts[char] = counts.get(char, 0) + 1
+
+    if not total:
+        return {}
+
+    return {char: count / total for char, count in counts.items()}
+
+text = "Быстрая лиса прыгает по полю. Это очень красивый текст."
+result = letter_frequency(text)
+
+if result:
+    for letter, freq in result.items():
+        print(f"Буква '{letter}': {freq:.4f}")
+else:
+    print("Текст не содержит русских букв.")
+
+
+
+
+
+import random
+random.seed(123)
+print(random.randint(1,20))
