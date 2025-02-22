@@ -1,0 +1,10 @@
+# f(x) = np.cos(x) ^ 3 + a*x*np.sin(b * x) ^ 2
+import matplotlib.pyplot as plt
+import numpy as np
+
+a = int(input(''))
+b = int(input(''))
+x = np.linspace(0, 2 * np.pi, 200)
+y = np.cos(x) * np.cos(x) * np.cos(x) + a*x*np.sin(b * x) * np.sin(b * x)
+plt.plot(x, y)
+plt.show()
