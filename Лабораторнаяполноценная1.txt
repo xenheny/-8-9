@@ -1,0 +1,114 @@
+import random
+import matplotlib.pyplot as plt
+import numpy as np
+
+xMin1, xMax1, yMin1, yMax1, xMin2, xMax2, yMin2, yMax2, p, k = 0, 10, 0, 10, 5, 15, 5, 15, 0.8, 3
+random.seed(23)
+x = []
+y = []
+pointsCount1 = []
+pointsCount2 = []
+for i in range(50):
+    pointsCount1.append([random.uniform(xMin1, xMax1), random.uniform(yMin1, yMax1)])
+    pointsCount2.append([random.uniform(xMin2, xMax2), random.uniform(yMin2, yMax2)])
+for i in range(100):
+    y.append(random.randint(0, 1))
+for i, j in zip(pointsCount1, pointsCount2):
+    x.append(i)
+    x.append(j)
+
+
+def train_test_split(a, b):
+    return a[:int(100 * p)], b[:int(100 * p)], a[int(100 * p):], b[int(100 * p):]
+
+
+def computeAccuracy(a, b):
+    global y_predict
+    n1 = 0
+    for (ii, jj) in zip(a, b):
+        if ii != jj:
+            n1 += 1
+    if n1 / len(a) >= (len(a) - n1) / len(a):
+        y_predict = []
+        for ii in b:
+            if ii == 0:
+                y_predict.append(1)
+            else:
+                y_predict.append(0)
+        return n1 / len(a)
+    else:
+        return (len(y_test) - n1) / len(y_test)
+
+
+def fit(a, b, c):
+    y_pred = []
+    for kk in c:
+        ff = []
+        yy = []
+        for iii in b:
+            yy.append(iii)
+        for ii in a:
+            ff.append(np.sqrt((ii[0] - kk[0]) ** 2 + (ii[1] - kk[1]) ** 2))
+        dd = 0
+        for _ in range(k):
+            count = 0
+            count_c = 0
+            mmin = str()
+            for jj in ff:
+                if mmin == str():
+                    mmin = jj
+                elif mmin > jj:
+                    mmin = jj
+                    count_c = count
+                count += 1
+            ff.remove(mmin)
+            dd += yy[count_c]
+            yy.remove(yy[count_c])
+        if dd >= 2:
+            y_pred.append(1)
+        else:
+            y_pred.append(0)
+    return y_pred
+
+
+x_train, y_train, x_test, y_test = train_test_split(x, y)
+y_predict = fit(x_train, y_train, x_test)
+accuracy = computeAccuracy(y_test, y_predict)
+print(y_test)
+print(y_predict)
+print(accuracy)
+xtrx = []
+xtry = []
+xtx = []
+xty = []
+n = 0
+for i in x_train:
+    xtrx.append(i[0])
+    xtry.append(i[1])
+for i in x_test:
+    xtx.append(i[0])
+    xty.append(i[1])
+for i in y_train:
+    if i == 0:
+        plt.scatter(xtrx[n], xtry[n], c='blue', marker='o')
+    else:
+        plt.scatter(xtrx[n], xtry[n], c='blue', marker='x')
+    n += 1
+n = 0
+for i, j in zip(y_predict, y_test):
+    if i != j:
+        if j == 0:
+            plt.scatter(xtx[n], xty[n], c='red', marker='o')
+        else:
+            plt.scatter(xtx[n], xty[n], c='red', marker='x')
+    n += 1
+n = 0
+for i, j in zip(y_predict, y_test):
+    if i == j:
+        if i == 0:
+            plt.scatter(xtx[n], xty[n], c='green', marker='o')
+        else:
+            plt.scatter(xtx[n], xty[n], c='green', marker='x')
+    n += 1
+plt.grid()
+plt.show()
