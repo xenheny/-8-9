@@ -1,0 +1,83 @@
+import random
+import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+xMin1, xMax1, yMin1, yMax1 = 5, 15, 5, 15
+xMin2, xMax2, yMin2, yMax2 = 15, 25, 15, 25
+p = 0.8
+n_neighbors = 3
+
+model = KNeighborsClassifier(n_neighbors=n_neighbors)
+
+pointsCount1 = []
+pointsCount2 = []
+x = []
+y = []
+
+for _ in range(50):
+    pointsCount1.append([random.uniform(xMin1, xMax1), random.uniform(yMin1, yMax1)])
+    y.append(0)
+    pointsCount2.append([random.uniform(xMin2, xMax2), random.uniform(yMin2, yMax2)])
+    y.append(1)
+
+for i, j in zip(pointsCount1, pointsCount2):
+    x.append(i)
+    x.append(j)
+
+train_size = int(100 * p)
+x_train, y_train, x_test, y_test = x[:train_size], y[:train_size], x[train_size:], y[train_size:]
+
+model.fit(x_train, y_train)
+y_predict = model.predict(x_test)
+
+accuracy = accuracy_score(y_test, y_predict)
+print("Accuracy:", accuracy)
+print("True labels (y_test):", y_test)
+print("Predicted labels (y_predict):", y_predict)
+
+xtrx = []
+xtry = []
+xtx = []
+xty = []
+
+for i in x_train:
+    xtrx.append(i[0])
+    xtry.append(i[1])
+
+for i in x_test:
+    xtx.append(i[0])
+    xty.append(i[1])
+
+n = 0
+for i in y_train:
+    if i == 0:
+        plt.scatter(xtrx[n], xtry[n], c='blue', marker='o', label='Class 0 (Train)' if n==0 else "")
+    else:
+        plt.scatter(xtrx[n], xtry[n], c='blue', marker='x', label='Class 1 (Train)' if n==0 else "")
+    n += 1
+
+n = 0
+for i, j in zip(y_predict, y_test):
+    if i != j:
+        if j == 0:
+            plt.scatter(xtx[n], xty[n], c='red', marker='o', label='Misclassified Class 0' if n==0 else "")
+        else:
+            plt.scatter(xtx[n], xty[n], c='red', marker='x', label='Misclassified Class 1' if n==0 else "")
+    n += 1
+
+n = 0
+for i, j in zip(y_predict, y_test):
+    if i == j:
+        if i == 0:
+            plt.scatter(xtx[n], xty[n], c='green', marker='o', label='Correctly Classified Class 0' if n==0 else "")
+        else:
+            plt.scatter(xtx[n], xty[n], c='green', marker='x', label='Correctly Classified Class 1' if n==0 else "")
+    n += 1
+
+plt.xlabel("X Coordinate")
+plt.ylabel("Y Coordinate")
+plt.title(f"KNN Classification (n_neighbors={n_neighbors}, Train Size={p*100}%) - Accuracy: {accuracy:.2f}")
+plt.grid(True)
+plt.legend()
+plt.show()
