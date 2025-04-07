@@ -1,0 +1,65 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider
+
+
+def generate_data():
+    centers = [(10, 10), (15, 15), (20, 20)]
+    radii = [10, 10, 10]
+    num_points = 20
+    xx, yy = [], []
+    index = 0
+    for i in centers:
+        for _ in range(num_points):
+            xx.append(i[0] + np.random.uniform(-1) * radii[index])
+            yy.append(i[1] + np.random.uniform(-1) * radii[index])
+        index += 1
+    return np.array(xx), np.array(yy)
+
+
+x, y = generate_data()
+data = np.column_stack((x, y))
+k = 3
+
+
+def k_means():
+    c = data[np.random.choice(len(data), k, replace=False)]
+    label = []
+    while True:
+        d = np.sqrt(((data - c[:, np.newaxis]) ** 2).sum(axis=2))
+        labels = np.argmin(d, axis=0)
+        label.append((c.copy(), labels.copy()))
+        nc = np.array([data[labels == i].mean(axis=0) for i in range(k)])
+        if np.all(c == nc):
+            break
+        c = nc
+
+    return label
+
+
+history = k_means()
+fig, ax = plt.subplots(figsize=(8, 6))
+plt.subplots_adjust(bottom=0.2)
+ax_slider = plt.axes([0.2, 0.05, 0.6, 0.03])
+slider = Slider(ax_slider, 'Иттерации', 0, len(history) - 1, valinit=0, valstep=1)
+
+
+def update(val):
+    epoch = int(slider.val)
+    ax.clear()
+    cent, labels = history[epoch]
+    colors = ['red', 'green', 'blue']
+    for i in range(k):
+        cluster_points = data[labels == i]
+        ax.scatter(cluster_points[:, 0], cluster_points[:, 1],
+                   c=colors[i])
+    ax.scatter(cent[:, 0], cent[:, 1],
+               c='black', marker='x', s=100, linewidths=2)
+
+    ax.set_title(f'Иттерации {epoch}')
+    ax.legend()
+
+
+slider.on_changed(update)
+update(0)
+plt.show()
