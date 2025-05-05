@@ -1,0 +1,44 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+func = lambda x: np.tan(x) + x ** 2  # Функция
+diffFunc = lambda x: 1 / (1 + x ** 2) + 2 * x  # Производная
+
+
+def gradientDescend(funcc=lambda x: x ** 2, difffFunc=lambda x: 2 * x,
+                    x0=3, speed=0.01, epochs=100):
+    xxList = []
+    yyList = []
+    x = x0
+    for _ in range(epochs):
+        xxList.append(x)
+        yyList.append(funcc(x))
+        x = x - speed * difffFunc(x)
+    return xxList, yyList
+
+
+xList, yList = gradientDescend(func, diffFunc)
+
+x_vals = np.linspace(min(xList) - 1, max(xList) + 1, 400)
+y_vals = func(x_vals)
+plt.figure(figsize=(10, 6))
+plt.plot(x_vals, y_vals)
+plt.scatter(xList, yList, color='purple', label='Точки')
+plt.plot(xList, yList, '--', color='blue', alpha=0.5, label='Траектория графика')
+plt.scatter([xList[0]], [yList[0]], color='green', s=100, label='Начало')
+plt.scatter([xList[-1]], [yList[-1]], color='red', s=100, label='Конец')
+plt.grid()
+plt.legend()
+plt.show()
+
+low = 0.0
+high = 1.0
+for _ in range(20):
+    mid = (low + high) / 2
+    xList, _ = gradientDescend(func, diffFunc, 3, mid, 100)
+    final_x = xList[-1]
+    if abs(final_x + 0.6) < 1e-2:
+        high = mid
+    else:
+        low = mid
+print((low + high) / 2)
