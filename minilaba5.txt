@@ -1,0 +1,82 @@
+# 3 10 6
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_circles, make_moons, make_blobs, make_s_curve, make_classification
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import DBSCAN, MeanShift, estimate_bandwidth
+from sklearn.mixture import GaussianMixture
+
+
+def generate_circles(n_samples=500, noise=0.05, factor=0.5):
+    return make_circles(n_samples=n_samples, noise=noise, factor=factor, random_state=42)
+
+
+def generate_moons(n_samples=500, noise=0.05):
+    return make_moons(n_samples=n_samples, noise=noise, random_state=42)
+
+
+def generate_blobs(n_samples=500, centers=3, cluster_std=1.0):
+    return make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std, random_state=42)
+
+
+def generate_varied_density(n_samples=500):
+    centers = [(-5, -5), (0, 0), (5, 5)]
+    cluster_std = [0.5, 1.5, 0.3]
+    return make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std, random_state=42)
+
+
+def generate_s_shape(n_samples=500, noise=0.05):
+    X, _ = make_s_curve(n_samples=n_samples, noise=noise, random_state=42)
+    return X[:, [0, 2]], None
+
+
+def generate_noisy(n_samples=500, noise=0.15):
+    return make_classification(n_samples=n_samples, n_features=2, n_informative=2,
+                               n_redundant=0, n_clusters_per_class=1,
+                               flip_y=noise, random_state=42)
+
+
+def cluster_Mean_shift(X):
+    ms = MeanShift(bandwidth=estimate_bandwidth(X, quantile=0.2, n_samples=500), bin_seeding=True)
+    ms.fit(X)
+    return ms.labels_
+
+
+def cluster_Gaussian_mixturest(X):
+    return GaussianMixture(n_components=3).fit_predict(X)
+
+
+def cluster_dbscan(X, eps=0.3, min_samples=10):
+    db = DBSCAN(eps=eps, min_samples=min_samples).fit(X)
+    return db.labels_
+
+
+datasets = {
+    "Круговые кластеры": generate_circles(),
+    "Два полумесяца": generate_moons(),
+    "Несколько сферических кластеров": generate_blobs(),
+    "Кластеры с разной плотностью": generate_varied_density(),
+    "S-образная структура": generate_s_shape(),
+    "Кластеры с шумом": generate_noisy()
+}
+results = {}
+plt.figure(figsize=(20, 25))
+plot_num = 1
+for dataset_name, (X, y) in datasets.items():
+    X = StandardScaler().fit_transform(X)
+    results[dataset_name] = {
+        "Mean-shift": cluster_Mean_shift(X),
+        "Gaussian_mixturest": cluster_Gaussian_mixturest(X),
+        "DBSCAN": cluster_dbscan(X)
+    }
+    plt.subplot(6, 3, plot_num)
+    plt.scatter(X[:, 0], X[:, 1], c=cluster_Mean_shift(X), cmap='viridis', s=10)
+    plt.title("Mean-shift")
+    plt.subplot(6, 3, plot_num + 1)
+    plt.scatter(X[:, 0], X[:, 1], c=cluster_Gaussian_mixturest(X), cmap='viridis', s=10)
+    plt.title("Gaussian_mixturest")
+    plt.subplot(6, 3, plot_num + 2)
+    plt.scatter(X[:, 0], X[:, 1], c=cluster_dbscan(X), cmap='viridis', s=10)
+    plt.title("DBSCAN")
+    plot_num += 3
+plt.tight_layout()
+plt.show()
