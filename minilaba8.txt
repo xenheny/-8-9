@@ -1,0 +1,35 @@
+import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error
+import numpy as np
+from sklearn.svm import SVR
+from sklearn.neural_network import MLPRegressor
+from sklearn.gaussian_process import GaussianProcessRegressor
+
+
+def f(x):
+    return 2 * np.sin(0.5 * x) + np.cos(2 * x)
+
+
+x = np.linspace(-10, 10, 100).reshape(-1, 1)
+y = f(x).ravel() + np.random.normal(0, 0.5, 100)
+
+models = {
+    "SVR (RBF)": SVR(kernel='rbf', C=100, gamma=0.1),
+    "MLP": MLPRegressor(hidden_layer_sizes=(50, 50), max_iter=1000),
+    "Gaussian Process": GaussianProcessRegressor()
+}
+
+plt.figure(figsize=(15, 10))
+predictions = {}
+for i, (name, model) in enumerate(models.items(), 1):
+    model.fit(x, y)
+    y_pred = model.predict(x)
+    predictions[name] = y_pred
+    plt.subplot(3, 1, i)
+    plt.scatter(x, y, color='blue', alpha=0.5)
+    plt.plot(x, f(x), color='green')
+    plt.plot(x, y_pred, color='red')
+    plt.title(name)
+    plt.grid(True)
+plt.tight_layout()
+plt.show()
